@@ -104,6 +104,21 @@ function displayIsInClientInfo() {
 * Register event handlers for the buttons displayed in the app
 */
 function registerButtonHandlers() {
+
+    // scan QR code call
+    document.getElementById('scanQRCodeButton').addEventListener('click', function() {
+
+        try {
+            liff.scanCode().then(result => {
+                console.log("Scanning QR CODE!")
+                console.log(result);
+            })
+        } catch (e) {
+            console.log(e)
+        }
+        
+    })
+
     // openWindow call
     document.getElementById('openWindowButton').addEventListener('click', function() {
         liff.openWindow({
