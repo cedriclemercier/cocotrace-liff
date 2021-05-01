@@ -103,20 +103,45 @@ function displayIsInClientInfo() {
 /**
 * Register event handlers for the buttons displayed in the app
 */
+
+
+
 function registerButtonHandlers() {
 
     // scan QR code call
     document.getElementById('scanQRCodeButton').addEventListener('click', function() {
 
-        let userId = liff.getProfile().then(function(profile) {
-            return profile.userId;
-        }).catch(function(error) {
-            window.alert('Error getting profile: ' + error);
-        });
+        // let userId = liff.getProfile().then(function(profile) {
+        //     return profile.userId;
+        // }).then(data => {
+        //     return data;
+        // }).catch(function(error) {
+        //     window.alert('Error getting profile: ' + error);
+        // });
 
         var lineHeaders = new Headers({
             'X-Custom-Header': 'Line'
         });
+
+        // let messageContent = {
+        //     data: 'message'
+        // }
+        // const userId = liff.getProfile().then(profile => {
+        //     return profile.userId
+        // }).then(u => {
+        //     fetch(`https://cocotrace.herokuapp.com/callback/pushMessage`, {
+        //         method: 'post',
+        //         mode: 'cors',
+        //         cache: 'no-cache',
+        //         referrerPolicy: 'no-referrer',
+        //         headers: new Headers({
+        //             'X-Custom-Header': `${u}`,
+        //             'Accept': '*'
+        //         }),
+        //         body: JSON.stringify(messageContent)
+        //     }).catch(pushException => console.log(pushException.message));
+        // })
+        
 
         // fetch(`https://cocotrace.herokuapp.com/redirectToWebOrLine?id=47&qrId=e4d10409-f8f8-4dee-96e7-17120475f164`,
         // {
@@ -147,12 +172,34 @@ function registerButtonHandlers() {
                     Quantity of products in the lot: ${data.quantity}. \
                     The item was sent on: + ${date.getDate()}/${date.getMonth() +1}/${date.getFullYear()}. \
                     Full id is '${data.qrCodeId}'`;
-                    
-                    liff.sendMessages([{
-                        'type': 'text',
-                        'text': message
-                    }])
-                    return data;
+
+                    // liff.sendMessages([{
+                    //     'type': 'text',
+                    //     'text': message
+                    // }])
+                    return message;
+                })
+                .then(mesg => {
+                    const uid = liff.getProfile().then(profile => {
+                        return profile.userId
+                    })
+                    return uid;
+                })
+                .then(u => {
+                    let messageContent = {
+                        data: message
+                    }
+                    fetch(`https://cocotrace.herokuapp.com/callback/pushMessage`, {
+                        method: 'post',
+                        mode: 'cors',
+                        cache: 'no-cache',
+                        referrerPolicy: 'no-referrer',
+                        headers: new Headers({
+                            'X-Custom-Header': `${u}`,
+                            'Accept': '*'
+                        }),
+                        body: JSON.stringify(messageContent)
+                    }).catch(pushException => console.log(pushException.message));
                 })
                 .catch(e => {
                     liff.sendMessages([{
@@ -161,16 +208,7 @@ function registerButtonHandlers() {
                     }])
                 })
 
-                fetch(`https://cocotrace.herokuapp.com/callback/pushMessage`, {
-                    method: 'post',
-                    mode: 'cors',
-                    headers: new Headers({
-                        'X-Custom-Header': `${userId}`
-                    }),
-                    body: {
-                        'data': `${message}`
-                    }
-                }).catch(e => console.log(e.message));
+            
             })
         
     });
