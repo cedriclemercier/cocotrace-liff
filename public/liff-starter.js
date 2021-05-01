@@ -108,6 +108,12 @@ function registerButtonHandlers() {
     // scan QR code call
     document.getElementById('scanQRCodeButton').addEventListener('click', function() {
 
+        let userId = liff.getProfile().then(function(profile) {
+            return profile.userId;
+        }).catch(function(error) {
+            window.alert('Error getting profile: ' + error);
+        });
+
         var lineHeaders = new Headers({
             'X-Custom-Header': 'Line'
         });
@@ -124,6 +130,8 @@ function registerButtonHandlers() {
         //     console.log(lineHeaders['X-Custom-Header']);
         // })
 
+        let message;
+
             liff.scanCode().then(result => {
                 fetch(`${result.value}`, {
                     mode: 'cors',
@@ -131,16 +139,18 @@ function registerButtonHandlers() {
                 }).then(resp => resp.json())
                 .then(data => {
                     let date = new Date(`${data.sendingDate}`);
+                    message = `Here are the details of the lot. \
+                    Product is: ${data.product.name} \
+                    Manufacturing Origin: ${data.product.manufacturingOrigin} \
+                    Manufacturing Date: ${data.product.manufacturingDate} \
+                    To be Consumed Before: ${data.product.consumedBefore} \
+                    Quantity of products in the lot: ${data.quantity}. \
+                    The item was sent on: + ${date.getDate()}/${date.getMonth() +1}/${date.getFullYear()}. \
+                    Full id is '${data.qrCodeId}'`;
+                    
                     liff.sendMessages([{
                         'type': 'text',
-                        'text': `Here are the details of the lot. \
-                        Product is: ${data.product.name} \
-                        Manufacturing Origin: ${data.product.manufacturingOrigin} \
-                        Manufacturing Date: ${data.product.manufacturingDate} \
-                        To be Consumed Before: ${data.product.consumedBefore} \
-                        Quantity of products in the lot: ${data.quantity}. \
-                        The item was sent on: + ${date.getDate()}/${date.getMonth() +1}/${date.getFullYear()}. \
-                        Full id is '${data.qrCodeId}'`
+                        'text': message
                     }])
                     return data;
                 })
@@ -150,6 +160,17 @@ function registerButtonHandlers() {
                         'text': 'Sorry, couldn\'t find any product with that code. Please try again. Issue is: ' + e.message
                     }])
                 })
+
+                fetch(`https://cocotrace.herokuapp.com/callback/pushMessage`, {
+                    method: 'post',
+                    mode: 'cors',
+                    headers: new Headers({
+                        'X-Custom-Header': `${userId}`
+                    }),
+                    body: {
+                        'data': `${message}`
+                    }
+                }).catch(e => console.log(e.message));
             })
         
     });
