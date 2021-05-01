@@ -108,16 +108,32 @@ function registerButtonHandlers() {
     // scan QR code call
     document.getElementById('scanQRCodeButton').addEventListener('click', function() {
 
-        try {
             liff.scanCode().then(result => {
-                console.log("Scanning QR CODE!")
-                console.log(result);
+                fetch(`${result.value}`).then(resp => resp.json())
+                .then(data => {
+                    let date = new Date(`${data.sendingDate}`);
+                    liff.sendMessages([{
+                        'type': 'text',
+                        'text': `Here are the details of the lot. \
+                        Product is: ${data.product.name} \
+                        Manufacturing Origin: ${data.product.manufacturingOrigin} \
+                        Manufacturing Date: ${data.product.manufacturingDate} \
+                        To be Consumed Before: ${data.product.consumedBefore} \
+                        Quantity of products in the lot: ${data.quantity}. \
+                        The item was sent on: + ${date.getDate()}/${date.getMonth() +1}/${date.getFullYear()}. \
+                        Full id is '${data.qrCodeId}'`
+                    }])
+                    return data;
+                })
+                .catch(e => {
+                    liff.sendMessages([{
+                        'type': 'text',
+                        'text': 'Sorry, couldn\'t find any product with that code. Please try again. Issue is: ' + e.message
+                    }])
+                })
             })
-        } catch (e) {
-            console.log(e)
-        }
         
-    })
+    });
 
     // openWindow call
     document.getElementById('openWindowButton').addEventListener('click', function() {

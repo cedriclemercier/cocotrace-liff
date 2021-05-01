@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>LIFF Starter</title>
         <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     </head>
     <body>
         <div id="liffAppContent">
@@ -12,7 +13,12 @@
             <div class="buttonGroup">
 
                 <div class="buttonRow">
-                    <button id="scanQRCodeButton">Scan QR Code</button>
+                    <button id="scanQRCodeButton" style="
+                    font-size: 20px;
+                    padding: 15px 32px;
+                    font-weight: bold;
+                    "><i class="fas fa-qrcode"></i> Scan QR Code</button>
+                    <p id="qr">Qr data here</p>
                 </div>
 
                 <div class="buttonRow">
