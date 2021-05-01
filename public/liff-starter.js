@@ -108,8 +108,27 @@ function registerButtonHandlers() {
     // scan QR code call
     document.getElementById('scanQRCodeButton').addEventListener('click', function() {
 
+        var lineHeaders = new Headers({
+            'X-Custom-Header': 'Line'
+        });
+
+        // fetch(`https://cocotrace.herokuapp.com/redirectToWebOrLine?id=47&qrId=e4d10409-f8f8-4dee-96e7-17120475f164`,
+        // {
+        //     mode: 'cors',
+        //     headers: lineHeaders
+        // }
+        // ).then(res => res.json()).then(data => {
+        //     console.log(data);
+        // }).catch(e => {
+        //     console.log(e.message);
+        //     console.log(lineHeaders['X-Custom-Header']);
+        // })
+
             liff.scanCode().then(result => {
-                fetch(`${result.value}`).then(resp => resp.json())
+                fetch(`${result.value}`, {
+                    mode: 'cors',
+                    headers: lineHeaders
+                }).then(resp => resp.json())
                 .then(data => {
                     let date = new Date(`${data.sendingDate}`);
                     liff.sendMessages([{
